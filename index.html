@@ -11,7 +11,8 @@
 <body>
 
 <div class="container mt-5">
-    <h2 class="text-center">§ 28 FamGKG - Wertgebühren</h2>
+    <h2 class="text-center"><a href="https://www.gesetze-im-internet.de/famgkg/__28.html" target="_blank">§ 28 FamGKG -
+        Wertgebühren</a></h2>
     Wenn sich die Gebühren nach dem Verfahrenswert richten, beträgt bei einem Verfahrenswert bis 500 Euro die Gebühr 38
     Euro. Die Gebühr erhöht sich bei einem
     <table class="table table-bordered table-striped mt-4">
@@ -65,13 +66,13 @@
     <form id="calculatorForm" class="form-inline justify-content-center mt-4">
         <div class="form-group mb-2">
             <label for="amount" class="sr-only">Verfahrenswert</label>
-            <input type="range" class="form-control" id="amount" value="500" step="500" min="500" max="1000000" required
-                   oninput="calculate()">
+            <input type="range" class="form-range" id="amount" value="650000" step="500" min="0" max="1000000"
+                   required oninput="update()" onchange="update()">
         </div>
         <div class="form-group mb-2">
             <label for="factor" class="sr-only">Faktor</label>
-            <input type="range" class="form-control" id="factor" value="2.0" step="0.5" min="0.5" max="2.0" required
-                   onchange="calculate()">
+            <input type="range" class="form-range" id="factor" value="2.0" step="0.5" min="0.5" max="4.0"
+                   required oninput="update()" onchange="update()">
         </div>
     </form>
 
@@ -79,102 +80,140 @@
         <tbody>
         <tr>
             <th style="width:20%">Verfahrenswert</th>
-            <td id="amountValue">500 EUR</td>
+            <td id="amountValue">-</td>
         </tr>
         <tr>
             <th>Faktor</th>
-            <td id="factorValue">2</td>
+            <td id="factorValue">-</td>
         </tr>
         <tr>
-            <th>Gerichtskosten</th>
-            <td id="result">76 EUR</td>
+            <th>Gebühren</th>
+            <td id="result">-</td>
         </tr>
         </tbody>
     </table>
+
+    <!-- Chart Canvas -->
+    <div class="mt-4">
+        <canvas id="resultChart"></canvas>
+    </div>
+
+    <div class="container">
+        <footer class="py-3 my-4">
+
+            <p class="text-center text-body-secondary">Stand: November 2024</p>
+        </footer>
+    </div>
 </div>
 
-<!-- JavaScript for calculation -->
-<script>
-    const rules = {
-        500: () => 38,
-        2_000: (amount = 2_000) => {
-            const restAmount = rules[500]();
-            console.log("500:", restAmount);
-            return Math.ceil((amount - 500) / 500) * 20 + restAmount;
-        },
-        10_000: (amount = 10_000) => {
-            const restAmount = rules[2_000]();
-            console.log("2.000:", restAmount);
-            return Math.ceil((amount - 2_000) / 1_000) * 21 + restAmount;
-        },
-        25_000: (amount = 25_000) => {
-            const restAmount = rules[10_000]();
-            console.log("10.000:", restAmount);
-            return Math.ceil((amount - 10_000) / 3_000) * 29 + restAmount;
-        },
-        50_000: (amount = 50_000) => {
-            const restAmount = rules[25_000]();
-            console.log("25.000:", restAmount);
-            return Math.ceil((amount - 25_000) / 5_000) * 38 + restAmount;
-        },
-        200_000: (amount = 200_000) => {
-            const restAmount = rules[50_000]();
-            console.log("50.000:", restAmount);
-            return Math.ceil((amount - 50_000) / 15_000) * 132 + restAmount;
-        },
-        500_000: (amount = 500_000) => {
-            const restAmount = rules[200_000]();
-            console.log("200.000:", restAmount);
-            return Math.ceil((amount - 200_000) / 30_000) * 198 + restAmount;
-        },
-        rest: (amount) => {
-            const restAmount = rules[500_000]();
-            console.log("500.000:", restAmount);
-            return Math.ceil((amount - 500_000) / 50_000) * 198 + restAmount;
-        }
-    };
-
-    const internalCalc = (target) => {
-        if (target > 500_000) {
-            console.log(`target ${target} > 500.000`);
-            return rules.rest(target);
-        } else if (target > 200_000) {
-            console.log(`target ${target} > 200.000`);
-            return rules[500_000](target);
-        } else if (target > 50_000) {
-            console.log(`target ${target} > 50.000`);
-            return rules[200_000](target);
-        } else if (target > 25_000) {
-            console.log(`target ${target} > 25.000`);
-            return rules[50_000](target);
-        } else if (target > 10_000) {
-            console.log(`target ${target} > 10.000`);
-            return rules[25_000](target);
-        } else if (target > 2_000) {
-            console.log(`target ${target} > 2.000`);
-            return rules[10_000](target);
-        } else if (target > 500) {
-            console.log(`target ${target} > 500`);
-            return rules[2_000](target);
-        } else {
-            console.log(`target ${target} <= 500`);
-            return rules[500](target);
-        }
-    };
-
-    function calculate() {
-        const amount = parseInt(document.getElementById("amount").value);
-        document.getElementById("amountValue").textContent = amount;
-        const factor = parseFloat(document.getElementById("factor").value);
-        document.getElementById("factorValue").textContent = factor;
-        document.getElementById("result").innerText = (internalCalc(amount) * factor) + " EUR";
-    }
-</script>
+<!-- ChartJS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"
+        integrity="sha384-Sse/HDqcypGpyTDpvZOJNnG0TT3feGQUkF9H+mnRvic+LjR+K1NhTt8f51KIQ3v3"
+        crossorigin="anonymous"></script>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
+
+<!-- JavaScript for calculation -->
+<script>
+    const rules = {
+        500: () => 38,
+        2_000: (amount = 2_000) => Math.ceil((amount - 500) / 500) * 20 + rules[500](),
+        10_000: (amount = 10_000) => Math.ceil((amount - 2_000) / 1_000) * 21 + rules[2_000](),
+        25_000: (amount = 25_000) => Math.ceil((amount - 10_000) / 3_000) * 29 + rules[10_000](),
+        50_000: (amount = 50_000) => Math.ceil((amount - 25_000) / 5_000) * 38 + rules[25_000](),
+        200_000: (amount = 200_000) => Math.ceil((amount - 50_000) / 15_000) * 132 + rules[50_000](),
+        500_000: (amount = 500_000) => Math.ceil((amount - 200_000) / 30_000) * 198 + rules[200_000](),
+        rest: (amount) => Math.ceil((amount - 500_000) / 50_000) * 198 + rules[500_000]()
+    };
+
+    const processCalculationRules = (amount) => {
+        if (amount >= 500_000) {
+            return rules.rest(amount);
+        } else if (amount >= 200_000) {
+            return rules[500_000](amount);
+        } else if (amount >= 50_000) {
+            return rules[200_000](amount);
+        } else if (amount > 25_000) {
+            return rules[50_000](amount);
+        } else if (amount > 10_000) {
+            return rules[25_000](amount);
+        } else if (amount > 2_000) {
+            return rules[10_000](amount);
+        } else if (amount > 500) {
+            return rules[2_000](amount);
+        } else {
+            return rules[500](amount);
+        }
+    };
+
+    const adjustSteps = (amount, input = document.getElementById("amount")) => {
+        if (amount > 50_000) input.setAttribute("step", "10000");
+        else if (amount > 10_000) input.setAttribute("step", "1000");
+        else input.setAttribute("step", "100");
+    };
+
+    const getAmount = () => parseInt(document.getElementById("amount").value);
+    const getFactor = () => parseFloat(document.getElementById("factor").value);
+
+    const currencyFormatter = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" });
+
+    // Initialize Chart.js
+    const amounts = [];
+    const results = [];
+    let amount = 500;
+    let step = 500;
+    while (amount <= 1_000_000) {
+        amounts.push(amount);
+        results.push(processCalculationRules(amount).toFixed(2));
+
+        amount += step;
+
+        if (amount >= 500_000) step = 50_000;
+        else if (amount >= 200_000) step = 30_000;
+        else if (amount >= 50_000) step = 15_000;
+        else if (amount >= 25_000) step = 5_000;
+        else if (amount >= 10_000) step = 3_000;
+        else if (amount >= 2_000) step = 1_000;
+    }
+
+    const ctx = document.getElementById("resultChart");
+    const chart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: amounts, // X-axis labels
+            datasets: [
+                { label: "Gebühren bei Faktor 1.0", data: results },
+                { label: "Gebühren bei Faktor 2.0", data: results.map(r => r * 2) },
+                { label: "Gebühren bei Faktor 3.0", data: results.map(r => r * 3) },
+                { label: "Gebühren bei Faktor 4.0", data: results.map(r => r * 4) }
+            ]
+        },
+        options: {
+            scales: {
+                x: { title: { display: true, text: "Verfahrenswert" } },
+                y: { title: { display: true, text: "Gebühren" } }
+            }
+        }
+    });
+
+    function update() {
+        const amount = getAmount();
+        const factor = getFactor();
+        const result = processCalculationRules(amount) * factor;
+
+        adjustSteps(amount);
+
+        // Display result
+        document.getElementById("amountValue").textContent = currencyFormatter.format(amount);
+        document.getElementById("factorValue").textContent = factor.toFixed(1);
+        document.getElementById("result").innerText = currencyFormatter.format(result);
+    }
+
+    update();
+</script>
 
 </body>
 </html>
