@@ -1,5 +1,5 @@
 # 28-FamGKG
-[Gebührenrechner nach $28 FamGKG](https://herrdommel.github.io/28-FamGKG/)
+[Gebührenrechner nach §28 FamGKG](https://herrdommel.github.io/28-FamGKG/)
 
 # References
 
